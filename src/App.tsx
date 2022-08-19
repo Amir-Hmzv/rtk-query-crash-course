@@ -1,58 +1,78 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
-
-function App() {
+import React from "react";
+import {
+  useAddContactMutation,
+  useGetContactQuery,
+  useDeleteContactMutation,
+  useUpdateContactMutation,
+  useGetContactsQuery
+  ,
+} from "./services/contactsApi";
+import "./App.css";
+import { json } from "stream/consumers";
+import { ContactDetail } from "./ContactDetail";
+const App = () => {
+  const { error, isFetching, isLoading, isSuccess, data } = useGetContactsQuery();
+    
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+      <h1>Redux Toolkit</h1>
+      {isLoading && <p>isLoading</p>}
+      {isFetching && <p>isFetching</p>}
+      {error && <p>error</p>}
+      {isSuccess && (
+        <div>
+          {data?.map((contact) => (
+            <div className="data" key={contact.id}>
+              <span>{contact.name}</span>
+              <ContactDetail id={contact.id} />
+            </div>
+          ))}
+        </div>
+      )}
+      <div>
+        <AddContact />
+      </div>
     </div>
   );
-}
+};
+
+export const AddContact = () => {
+  const [addContact] = useAddContactMutation();
+  const [updateContact] = useUpdateContactMutation();
+  const [deleteContact] = useDeleteContactMutation();
+  const { error, isFetching, isLoading, isSuccess, data,refetch } =
+  useGetContactsQuery();
+  const contact = {
+    id: 7,
+    name: "11tttt",
+    email: "ttttt@gmail.com",
+  };
+  const updatecontact = {
+    id: 7,
+    name: "11tttt update",
+    email: "ttttt@gmail.com",
+  };
+
+  const addHandler = async () => {
+    await addContact(contact);
+  
+  };
+  const updateHandler = async () => {
+    await updateContact(updatecontact);
+    
+  };
+  const delteHandler = async () => {
+    await deleteContact(contact.id);
+   
+  };
+
+  return (
+    <>
+      <button onClick={addHandler}>add contact</button>
+      <button onClick={updateHandler}>update contact</button>
+      <button onClick={delteHandler}>delete contact</button>
+    </>
+  );
+};
 
 export default App;
